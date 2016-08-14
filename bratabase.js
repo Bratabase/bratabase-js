@@ -7,7 +7,18 @@ var SCHEMAS = {
     resource: EntityDocument
 };
 
-function getJSON(url, api) {
+function urlEncode(params) {
+    var encoded = Object.keys(params).map(function(k){
+        return encodeURIComponent(k) + "=" + encodeURIComponent(params[k]);
+    });
+    if (encoded.length === 0) {
+        return '';
+    }
+    return '?' + encoded.join('&');
+}
+
+function getJSON(url, params, api) {
+    params = params || {};
     return new Promise(function(resolve, reject) {
         var xhr = new XMLHttpRequest();
 
@@ -24,7 +35,7 @@ function getJSON(url, api) {
             reject(this);
         }
 
-        xhr.open("GET", url, true);
+        xhr.open("GET", url + urlEncode(params), true);
         xhr.send();
     });
 }
@@ -45,8 +56,8 @@ function Meta(meta) {
 }
 
 
-function followLink(url, api) {
-    return getJSON(url).then(function(payload){
+function followLink(url, api, params) {
+    return getJSON(url, params, api).then(function(payload){
         var schema = SCHEMAS[payload.rel];
         return new schema(payload, api);
     });
@@ -56,8 +67,8 @@ function followLink(url, api) {
 function Links(links, api) {
     var self = this;
     Object.keys(links).forEach(function(link) {
-        self[link] = function(){
-            return followLink(links[link], api);
+        self[link] = function(params){
+            return followLink(links[link], api, params);
         }
     });
     return this;
