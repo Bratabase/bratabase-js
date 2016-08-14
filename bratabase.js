@@ -15,6 +15,7 @@ function getJSON(url, api) {
             if (this.status >= 200 && this.status < 400) {
                 resolve(JSON.parse(this.response));
             } else {
+                this.responseJSON = JSON.parse(this.response);
                 reject(this);
             }
         };
