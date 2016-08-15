@@ -70,6 +70,7 @@ function Links(links, api) {
         self[link] = function(params){
             return followLink(links[link], api, params);
         }
+        self[link].self = links[link];
     });
     return this;
 }
